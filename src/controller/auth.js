@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
 
 exports.signUp = (req, res) => {
     User.findOne({ email: req.body.email })
@@ -61,13 +62,4 @@ exports.signIn = (req, res) => {
             return res.status(400).json({message: 'Something went wrong'})
         }
     })
-}
-
-//middleware thuc hien kiem tra token user
-exports.requireSignIn = (req, res, next) => {
-    const token = req.headers.authorization.split(" ")[1];
-    const user = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = user;
-    next();
-    // jwt.decode()
 }
