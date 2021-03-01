@@ -1,4 +1,19 @@
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const shortid = require('shortid');
+const path = require('path');
+
+// Xu ly viec luu hinh anh sp trong may
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(path.dirname(__dirname), 'uploads'))
+    },
+    filename: function (req, file, cb) {
+        cb(null, shortid.generate() + '-' + file.originalname)
+    }
+})
+
+exports.upload = multer({ storage });
 
 //middleware thuc hien kiem tra token user
 exports.requireSignIn = (req, res, next) => {
