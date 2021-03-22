@@ -39,7 +39,7 @@ exports.createProduct = (req, res) => {
 exports.getProductsBySlug = (req, res) => {
     const { slug } = req.params;
     Category.findOne({ slug: slug })
-    .select('_id')
+    .select('_id type')
     .exec((error, category) => {
         if(error){
             return res.status(400).json({ error });
@@ -53,21 +53,25 @@ exports.getProductsBySlug = (req, res) => {
                     return res.status(400).json({error});
                 }
 
-                if(products.length > 0){
-                    res.status(200).json({ 
-                        products,
-                        productsByPrice: {
-                            under5mil: products.filter(product => product.price <= 5000000),
-                            under10mil: products.filter(product => product.price > 5000000 && product.price <= 10000000),
-                            under15mil: products.filter(product => product.price > 10000000 && product.price <= 15000000),
-                            under20mil: products.filter(product => product.price > 15000000 && product.price <= 20000000),
-                            under30mil: products.filter(product => product.price > 20000000 && product.price <= 30000000),
-                        }
-                    });
+                if(category.type){
+                    if(products.length > 0){
+                        res.status(200).json({ 
+                            products,
+                            productsByPrice: {
+                                under5mil: products.filter(product => product.price <= 5000000),
+                                under10mil: products.filter(product => product.price > 5000000 && product.price <= 10000000),
+                                under15mil: products.filter(product => product.price > 10000000 && product.price <= 15000000),
+                                under20mil: products.filter(product => product.price > 15000000 && product.price <= 20000000),
+                                under30mil: products.filter(product => product.price > 20000000 && product.price <= 30000000),
+                            }
+                        });
+                    }
+                }else{
+                    res.status(200).json({ products });
                 }
-            })
+            });
         }
-    })
+    });
     // res.status(200).json({ slug });
 }
 
