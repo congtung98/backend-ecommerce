@@ -3,6 +3,12 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const shortid = require('shortid');
 
+const generateJwtToken = (_id, role) => {
+    return jwt.sign({ _id, role }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+    });
+};
+
 exports.signUp = (req, res) => {
     User.findOne({ email: req.body.email })
     .exec( async (error, user) => {
@@ -33,8 +39,11 @@ exports.signUp = (req, res) => {
             }
 
             if(data){
+                const token = generateJwtToken(user._id, user.role);
+                const { _id, firstName, lastName, email, role, fullName } = user;
                 return res.status(201).json({
-                    user: 'Tao user moi thanh cong!'
+                    token,
+                    user: { _id, firstName, lastName, email, role, fullName },
                 });
             }
         });
@@ -48,7 +57,7 @@ exports.signIn = (req, res) => {
         if(user){
             const isPassword = await user.authenticate(req.body.password);
             if(isPassword && user.role === 'user'){
-                const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '24h' });
+                const token = generateJwtToken(user._id, user.role);
                 const { _id, firstName, lastName, email, role, fullName } = user;
                 res.status(200).json({
                     token,

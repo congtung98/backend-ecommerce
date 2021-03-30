@@ -1,5 +1,5 @@
 const express = require('express');
-const { createProduct, getProductsBySlug, getProductDetailsById } = require('../controller/product');
+const { createProduct, getProductsBySlug, getProductDetailsById, getProducts, deleteProductById } = require('../controller/product');
 // const { addCategory, getCategory } = require('../controller/category');
 const { adminMiddleware, requireSignIn } = require('../middleware');
 const multer = require('multer');
@@ -23,5 +23,7 @@ router.post('/product/create', requireSignIn, adminMiddleware, upload.array('pro
 router.get('/products/:slug', getProductsBySlug)
 // router.get('/category/getcategory', getCategory);
 router.get('/product/:productId', getProductDetailsById);
+router.delete('/product/deleteProductById', requireSignIn, adminMiddleware, deleteProductById);
+router.post('/product/getProducts', requireSignIn, adminMiddleware, getProducts);
 
 module.exports = router;
