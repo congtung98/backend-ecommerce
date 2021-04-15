@@ -95,8 +95,7 @@ exports.updateCategories = async (req, res) => {
         const updatedCategory = await Category.findOneAndUpdate({_id}, category, {new: true});
         return res.status(201).json({ updatedCategory });
     }
-    res.status(200).json({ body: req.body })
-}
+};
 
 exports.deleteCategories = async (req, res) => {
     const { ids } = req.body.payload;
@@ -109,6 +108,6 @@ exports.deleteCategories = async (req, res) => {
     if(deletedCategories.length == ids.length){
         res.status(200).json({message: 'Categories removed'});
     }else{
-        res.status(200).json({message: 'Something went wrong'});
+        res.status(400).json({message: 'Something went wrong'});
     }
 }

@@ -15,7 +15,7 @@ exports.createProduct = (req, res) => {
             return { img: file.filename }
         });
     }
-
+    console.log({productPictures});
     const product = new Product({
         name: name,
         slug: slugify(name),
@@ -113,10 +113,67 @@ exports.deleteProductById = (req, res) => {
 };
 
 exports.getProducts = async (req, res) => {
-    const products = await Product.find({})
+    const products = await Product.find({ })
         .select("_id name price quantity slug description productPictures createdBy")
         .populate({ path: "category", select: "_id name" })
         .exec();
 
     res.status(200).json({ products });
 };
+
+exports.updateProducts = async (req, res) => {
+    const { _id, name, price, quantity, description, category, productPictures } = req.body;
+    console.log(productPictures);
+    let _productPictures = []; 
+    let _oldProductPictures = [];
+    let array = productPictures.split(",");
+    console.log({ array });
+    if(array.length > 0 && !array.includes('')){
+        _oldProductPictures = array.map(file => {
+            return { img: file }
+        })
+    }
+    // _productPictures.push(productPictures);
+    console.log(_oldProductPictures);
+    // if(productPictures.length > 0){
+    //     // console.log(name, price);
+    //     _productPictures = productPictures.map(file => {
+    //         return { img: file.img }
+    //     })
+    // }
+
+    if(req.files.length > 0){
+        _productPictures = req.files.map(file => {
+            return { img: file.filename }
+        })
+        console.log('hellpo');
+    }
+    console.log({_productPictures});
+
+    let finalProductPitures = _oldProductPictures.concat(_productPictures);
+    
+    const _updatedProduct = {
+        name,
+        price,
+        quantity,
+        description,
+        category,
+        productPictures: finalProductPitures,
+        createdBy: req.user._id
+    }
+
+    if(_id){
+        Product.findOneAndUpdate(
+            { _id: _id },
+            _updatedProduct,
+            { new: true }
+        ).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                return res.status(201).json({ updatedProduct: result });
+            }
+        });
+    }else{
+        res.status(400).json({ error: "Params required" })
+    }
+}
