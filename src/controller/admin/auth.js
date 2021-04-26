@@ -60,7 +60,7 @@ exports.signIn = (req, res) => {
                 });
             }else{
                 return res.status(400).json({ 
-                    message: 'Sai mat khau'
+                    message: 'Wrong password!'
                 });
             }
         }else{
