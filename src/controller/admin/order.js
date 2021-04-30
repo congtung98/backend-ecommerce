@@ -1,6 +1,21 @@
 const Order = require("../../models/order");
+const Product = require("../../models/product");
 
 exports.updateOrder = (req, res) => {
+    const { items, type } = req.body;
+
+    if(req.body.type === 'delivered'){
+        for (let i = 0; i < items.length; i++) {      
+            Product.updateOne(
+                { _id: items[i].productId._id },
+                {
+                    $inc: {
+                        quantity: -items[i].purchasedQty 
+                    }
+                }
+            ).exec();
+        }
+    }
     Order.updateOne(
         { _id: req.body.orderId, "orderStatus.type": req.body.type },
         {

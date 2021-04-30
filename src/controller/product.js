@@ -2,6 +2,7 @@ const Product = require('../models/product');
 const shortid = require('shortid');
 const slugify = require('slugify');
 const Category = require('../models/category');
+const SmartPhone = require('../models/smartphone');
 
 exports.createProduct = (req, res) => {
  
@@ -112,6 +113,20 @@ exports.deleteProductById = (req, res) => {
     }
 };
 
+exports.deleteSmartPhoneProductById = (req, res) => {
+    const { productId } = req.body.payload;
+    if(productId){
+        SmartPhone.deleteOne({ _id: productId }).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                res.status(202).json({ result });
+            }
+        });
+    }else{
+        res.status(400).json({ error: "Params required" })
+    }
+};
+
 exports.getProducts = async (req, res) => {
     const products = await Product.find({ })
         .select("_id name price quantity slug description productPictures createdBy")
@@ -175,5 +190,74 @@ exports.updateProducts = async (req, res) => {
         });
     }else{
         res.status(400).json({ error: "Params required" })
+    }
+}
+
+exports.updateSmartPhoneProductDetails = async (req, res) => {
+    const { 
+        _id, 
+        quantity, 
+        ram, 
+        storage, 
+        capacity, 
+        resolutionType, 
+        primaryCamera, 
+        secondaryCamera, 
+        color, 
+        screenSize, 
+        product 
+    } = req.body;
+
+    
+    const productDetails = {
+        quantity,
+        ram,
+        storage,
+        capacity,
+        resolutionType,
+        primaryCamera,
+        secondaryCamera,
+        color,
+        screenSize,
+        product,
+        createdBy: req.user._id
+    }
+   
+    console.log(productDetails);
+
+    if(_id){
+        SmartPhone.findOneAndUpdate(
+            { _id: _id},
+            productDetails,
+            { new: true }
+        ).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                return res.status(201).json({ productDetails: result });
+            }
+        });
+    }else{
+        const smartPhone = new SmartPhone(productDetails);
+        smartPhone.save(((error, productDetail) => {
+            if(error) return res.status(400).json({ error });
+            if(productDetail){
+                res.status(201).json({ productDetail });
+            }
+        }));
+    }
+}
+
+exports.getSmartPhoneProductDetailsById = (req, res) => {
+    const { productId } = req.params;
+    if(productId){
+        SmartPhone.find({ product: productId })
+        .exec((error, product) => {
+            if(error) return res.status(400).json({ error });
+            if(product){
+                res.status(200).json({ product });
+            }
+        });
+    }else{
+        return res.status(400).json({ error: 'Params required' });
     }
 }
