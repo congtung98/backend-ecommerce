@@ -35,6 +35,12 @@ const productSchema = new mongoose.Schema({
             review: String
         },
     ],
+    rating: [
+        {
+            rate: { type: Number },
+            qty: { type: Number }
+        },
+    ],
     category: {
         type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true
     },

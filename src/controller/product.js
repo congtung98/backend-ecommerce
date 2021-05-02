@@ -3,6 +3,7 @@ const shortid = require('shortid');
 const slugify = require('slugify');
 const Category = require('../models/category');
 const SmartPhone = require('../models/smartphone');
+const Clothing = require('../models/clothing');
 
 exports.createProduct = (req, res) => {
  
@@ -114,9 +115,31 @@ exports.deleteProductById = (req, res) => {
 };
 
 exports.deleteSmartPhoneProductById = (req, res) => {
-    const { productId } = req.body.payload;
+    const { productId, quantity, product } = req.body.payload;
     if(productId){
         SmartPhone.deleteOne({ _id: productId }).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                res.status(202).json({ result });
+            }
+        });
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: -quantity
+                }
+            }
+        ).exec();
+    }else{
+        res.status(400).json({ error: "Params required" })
+    }
+};
+
+exports.deleteClothingProductById = (req, res) => {
+    const { productId } = req.body.payload;
+    if(productId){
+        Clothing.deleteOne({ _id: productId }).exec((error, result) => {
             if(error) return res.status(400).json({ error });
             if(result){
                 res.status(202).json({ result });
@@ -222,10 +245,12 @@ exports.updateSmartPhoneProductDetails = async (req, res) => {
         product,
         createdBy: req.user._id
     }
-   
-    console.log(productDetails);
-
+    
     if(_id){
+        const smartPhone = await SmartPhone.findOne({ _id: _id }).exec();
+        const oldQuantity = smartPhone.quantity;
+        const newQuantity = quantity - oldQuantity;
+
         SmartPhone.findOneAndUpdate(
             { _id: _id},
             productDetails,
@@ -236,6 +261,14 @@ exports.updateSmartPhoneProductDetails = async (req, res) => {
                 return res.status(201).json({ productDetails: result });
             }
         });
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: newQuantity
+                }
+            }
+        ).exec();
     }else{
         const smartPhone = new SmartPhone(productDetails);
         smartPhone.save(((error, productDetail) => {
@@ -244,6 +277,14 @@ exports.updateSmartPhoneProductDetails = async (req, res) => {
                 res.status(201).json({ productDetail });
             }
         }));
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: quantity 
+                }
+            }
+        ).exec();
     }
 }
 
@@ -251,6 +292,65 @@ exports.getSmartPhoneProductDetailsById = (req, res) => {
     const { productId } = req.params;
     if(productId){
         SmartPhone.find({ product: productId })
+        .exec((error, product) => {
+            if(error) return res.status(400).json({ error });
+            if(product){
+                res.status(200).json({ product });
+            }
+        });
+    }else{
+        return res.status(400).json({ error: 'Params required' });
+    }
+}
+
+exports.updateClothingProductDetails = async (req, res) => {
+    const { 
+        _id, 
+        quantity, 
+        size,
+        color,
+        fabric,
+        product 
+    } = req.body;
+
+    
+    const productDetails = {
+        quantity,
+        size,
+        color,
+        fabric,
+        product,
+        createdBy: req.user._id
+    }
+   
+    console.log(productDetails);
+
+    if(_id){
+        Clothing.findOneAndUpdate(
+            { _id: _id},
+            productDetails,
+            { new: true }
+        ).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                return res.status(201).json({ productDetails: result });
+            }
+        });
+    }else{
+        const clothing = new Clothing(productDetails);
+        clothing.save(((error, productDetail) => {
+            if(error) return res.status(400).json({ error });
+            if(productDetail){
+                res.status(201).json({ productDetail });
+            }
+        }));
+    }
+}
+
+exports.getClothingProductDetailsById = (req, res) => {
+    const { productId } = req.params;
+    if(productId){
+        Clothing.find({ product: productId })
         .exec((error, product) => {
             if(error) return res.status(400).json({ error });
             if(product){
