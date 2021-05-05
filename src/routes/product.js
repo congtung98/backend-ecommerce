@@ -1,5 +1,22 @@
 const express = require('express');
-const { createProduct, getProductsBySlug, getProductDetailsById, getProducts, deleteProductById, updateProducts, updateSmartPhoneProductDetails, getSmartPhoneProductDetailsById, deleteSmartPhoneProductById, updateClothingProductDetails, getClothingProductDetailsById, deleteClothingProductById } = require('../controller/product');
+const { createProduct, 
+    getProductsBySlug, 
+    getProductDetailsById, 
+    getProducts, 
+    deleteProductById, 
+    updateProducts, 
+    updateSmartPhoneProductDetails, 
+    getSmartPhoneProductDetailsById, 
+    deleteSmartPhoneProductById, 
+    updateClothingProductDetails, 
+    getClothingProductDetailsById, 
+    deleteClothingProductById, 
+    updateTelevisionProductDetails, 
+    getTelevisionProductDetailsById, 
+    deleteTelevisionProductById, 
+    updateLaptopProductDetails, 
+    getLaptopProductDetailsById, 
+    deleteLaptopProductById } = require('../controller/product');
 // const { addCategory, getCategory } = require('../controller/category');
 const { adminMiddleware, requireSignIn } = require('../middleware');
 const multer = require('multer');
@@ -33,5 +50,13 @@ router.delete('/product/deleteSmartPhoneProductById', requireSignIn, adminMiddle
 router.post('/product/editClothingProductDetail', requireSignIn, adminMiddleware, updateClothingProductDetails);
 router.get('/product/clothing/:productId', getClothingProductDetailsById);
 router.delete('/product/deleteClothingProductById', requireSignIn, adminMiddleware, deleteClothingProductById);
+//television
+router.post('/product/editTelevisionProductDetail', requireSignIn, adminMiddleware, updateTelevisionProductDetails);
+router.get('/product/television/:productId', getTelevisionProductDetailsById);
+router.delete('/product/deleteTelevisionProductById', requireSignIn, adminMiddleware, deleteTelevisionProductById);
+//laptop
+router.post('/product/editLaptopProductDetail', requireSignIn, adminMiddleware, updateLaptopProductDetails);
+router.get('/product/laptop/:productId', getLaptopProductDetailsById);
+router.delete('/product/deleteLAptopProductById', requireSignIn, adminMiddleware, deleteLaptopProductById);
 
 module.exports = router;
