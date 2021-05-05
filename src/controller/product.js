@@ -6,6 +6,7 @@ const SmartPhone = require('../models/smartphone');
 const Clothing = require('../models/clothing');
 const Televison = require('../models/televison');
 const Laptop = require('../models/laptop');
+const Furniture = require('../models/furniture');
 
 exports.createProduct = (req, res) => {
  
@@ -186,6 +187,28 @@ exports.deleteLaptopProductById = (req, res) => {
     const { productId, quantity, product } = req.body.payload;
     if(productId){
         Laptop.deleteOne({ _id: productId }).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                res.status(202).json({ result });
+            }
+        });
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: -quantity
+                }
+            }
+        ).exec();
+    }else{
+        res.status(400).json({ error: "Params required" })
+    }
+};
+
+exports.deleteFurnitureProductById = (req, res) => {
+    const { productId, quantity, product } = req.body.payload;
+    if(productId){
+        Furniture.deleteOne({ _id: productId }).exec((error, result) => {
             if(error) return res.status(400).json({ error });
             if(result){
                 res.status(202).json({ result });
@@ -610,6 +633,86 @@ exports.getLaptopProductDetailsById = (req, res) => {
     const { productId } = req.params;
     if(productId){
         Laptop.find({ product: productId })
+        .exec((error, product) => {
+            if(error) return res.status(400).json({ error });
+            if(product){
+                res.status(200).json({ product });
+            }
+        });
+    }else{
+        return res.status(400).json({ error: 'Params required' });
+    }
+}
+
+exports.updateFurnitureProductDetails = async (req, res) => {
+    const { 
+        _id, 
+        quantity, 
+        primaryColor,
+        material,
+        product 
+    } = req.body;
+
+    
+    const productDetails = {
+        quantity,
+        primaryColor,
+        material,
+        product,
+        createdBy: req.user._id
+    }
+
+    if(_id){
+        const furniture = await Furniture.findOne({ _id: _id }).exec();
+        const oldQuantity = furniture.quantity;
+        const newQuantity = quantity - oldQuantity;
+
+        Furniture.findOneAndUpdate(
+            { _id: _id},
+            productDetails,
+            { new: true }
+        ).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                return res.status(201).json({ productDetails: result });
+            }
+        });
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: newQuantity
+                }
+            }
+        ).exec();
+    }else{
+        const furnitureProduct = await Product.findOne({ _id: product }).exec();
+        const numberOfVariants = await Furniture.find({ product: product }).count().exec();
+        const oldQuantity = furnitureProduct.quantity;
+        const furniture = new Furniture(productDetails);
+        furniture.save(((error, productDetail) => {
+            if(error) return res.status(400).json({ error });
+            if(productDetail){
+                res.status(201).json({ productDetail });
+            }
+        }));
+        if(oldQuantity === 0 || numberOfVariants > 0){
+            Product.updateOne(
+                { _id: product },
+                {
+                    $inc: {
+                        quantity: quantity 
+                    }
+                }
+            ).exec();
+        }
+    }
+}
+
+exports.getFurnitureProductDetailsById = (req, res) => {
+    const { productId } = req.params;
+    if(productId){
+        Furniture.find({ product: productId })
         .exec((error, product) => {
             if(error) return res.status(400).json({ error });
             if(product){

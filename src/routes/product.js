@@ -16,7 +16,10 @@ const { createProduct,
     deleteTelevisionProductById, 
     updateLaptopProductDetails, 
     getLaptopProductDetailsById, 
-    deleteLaptopProductById } = require('../controller/product');
+    deleteLaptopProductById, 
+    updateFurnitureProductDetails,
+    getFurnitureProductDetailsById,
+    deleteFurnitureProductById} = require('../controller/product');
 // const { addCategory, getCategory } = require('../controller/category');
 const { adminMiddleware, requireSignIn } = require('../middleware');
 const multer = require('multer');
@@ -57,6 +60,10 @@ router.delete('/product/deleteTelevisionProductById', requireSignIn, adminMiddle
 //laptop
 router.post('/product/editLaptopProductDetail', requireSignIn, adminMiddleware, updateLaptopProductDetails);
 router.get('/product/laptop/:productId', getLaptopProductDetailsById);
-router.delete('/product/deleteLAptopProductById', requireSignIn, adminMiddleware, deleteLaptopProductById);
+router.delete('/product/deleteLaptopProductById', requireSignIn, adminMiddleware, deleteLaptopProductById);
+//furniture
+router.post('/product/editFurnitureProductDetail', requireSignIn, adminMiddleware, updateFurnitureProductDetails);
+router.get('/product/furniture/:productId', getFurnitureProductDetailsById);
+router.delete('/product/deleteFurnitureProductById', requireSignIn, adminMiddleware, deleteFurnitureProductById);
 
 module.exports = router;
