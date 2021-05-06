@@ -7,6 +7,7 @@ const Clothing = require('../models/clothing');
 const Televison = require('../models/televison');
 const Laptop = require('../models/laptop');
 const Furniture = require('../models/furniture');
+const Book = require('../models/book');
 
 exports.createProduct = (req, res) => {
  
@@ -209,6 +210,28 @@ exports.deleteFurnitureProductById = (req, res) => {
     const { productId, quantity, product } = req.body.payload;
     if(productId){
         Furniture.deleteOne({ _id: productId }).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                res.status(202).json({ result });
+            }
+        });
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: -quantity
+                }
+            }
+        ).exec();
+    }else{
+        res.status(400).json({ error: "Params required" })
+    }
+};
+
+exports.deleteBookProductById = (req, res) => {
+    const { productId, quantity, product } = req.body.payload;
+    if(productId){
+        Book.deleteOne({ _id: productId }).exec((error, result) => {
             if(error) return res.status(400).json({ error });
             if(result){
                 res.status(202).json({ result });
@@ -713,6 +736,88 @@ exports.getFurnitureProductDetailsById = (req, res) => {
     const { productId } = req.params;
     if(productId){
         Furniture.find({ product: productId })
+        .exec((error, product) => {
+            if(error) return res.status(400).json({ error });
+            if(product){
+                res.status(200).json({ product });
+            }
+        });
+    }else{
+        return res.status(400).json({ error: 'Params required' });
+    }
+}
+
+exports.updateBookProductDetails = async (req, res) => {
+    const { 
+        _id, 
+        quantity, 
+        author,
+        publisher,
+        genre,
+        product 
+    } = req.body;
+
+    
+    const productDetails = {
+        quantity,
+        author,
+        publisher,
+        genre,
+        product,
+        createdBy: req.user._id
+    }
+
+    if(_id){
+        const book = await Book.findOne({ _id: _id }).exec();
+        const oldQuantity = book.quantity;
+        const newQuantity = quantity - oldQuantity;
+
+        Book.findOneAndUpdate(
+            { _id: _id},
+            productDetails,
+            { new: true }
+        ).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                return res.status(201).json({ productDetails: result });
+            }
+        });
+        Product.updateOne(
+            { _id: product },
+            {
+                $inc: {
+                    quantity: newQuantity
+                }
+            }
+        ).exec();
+    }else{
+        const bookProduct = await Product.findOne({ _id: product }).exec();
+        const numberOfVariants = await Book.find({ product: product }).count().exec();
+        const oldQuantity = bookProduct.quantity;
+        const book = new Book(productDetails);
+        book.save(((error, productDetail) => {
+            if(error) return res.status(400).json({ error });
+            if(productDetail){
+                res.status(201).json({ productDetail });
+            }
+        }));
+        if(oldQuantity === 0 || numberOfVariants > 0){
+            Product.updateOne(
+                { _id: product },
+                {
+                    $inc: {
+                        quantity: quantity 
+                    }
+                }
+            ).exec();
+        }
+    }
+}
+
+exports.getBookProductDetailsById = (req, res) => {
+    const { productId } = req.params;
+    if(productId){
+        Book.find({ product: productId })
         .exec((error, product) => {
             if(error) return res.status(400).json({ error });
             if(product){
