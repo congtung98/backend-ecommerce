@@ -22,9 +22,10 @@ const { createProduct,
     deleteFurnitureProductById,
     updateBookProductDetails,
     getBookProductDetailsById,
-    deleteBookProductById} = require('../controller/product');
+    deleteBookProductById,
+    updateRatingProductDetails} = require('../controller/product');
 // const { addCategory, getCategory } = require('../controller/category');
-const { adminMiddleware, requireSignIn } = require('../middleware');
+const { adminMiddleware, requireSignIn, userMiddleware } = require('../middleware');
 const multer = require('multer');
 const router = express.Router();
 const shortid = require('shortid');
@@ -72,5 +73,7 @@ router.delete('/product/deleteFurnitureProductById', requireSignIn, adminMiddlew
 router.post('/product/editBookProductDetail', requireSignIn, adminMiddleware, updateBookProductDetails);
 router.get('/product/book/:productId', getBookProductDetailsById);
 router.delete('/product/deleteBookProductById', requireSignIn, adminMiddleware, deleteBookProductById);
+
+router.post('/product/rating', requireSignIn, userMiddleware, upload.array('productPicture'), updateRatingProductDetails);
 
 module.exports = router;

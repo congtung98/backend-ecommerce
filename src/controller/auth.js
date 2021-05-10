@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const shortid = require('shortid');
 
-const generateJwtToken = (_id, role) => {
-    return jwt.sign({ _id, role }, process.env.JWT_SECRET, {
+const generateJwtToken = (_id, role, firstName, lastName) => {
+    return jwt.sign({ _id, role, firstName, lastName }, process.env.JWT_SECRET, {
         expiresIn: "1d",
     });
 };
@@ -57,7 +57,7 @@ exports.signIn = (req, res) => {
         if(user){
             const isPassword = await user.authenticate(req.body.password);
             if(isPassword && user.role === 'user'){
-                const token = generateJwtToken(user._id, user.role);
+                const token = generateJwtToken(user._id, user.role, user.firstName, user.lastName);
                 const { _id, firstName, lastName, email, role, fullName } = user;
                 res.status(200).json({
                     token,
@@ -67,11 +67,11 @@ exports.signIn = (req, res) => {
                 });
             }else{
                 return res.status(400).json({ 
-                    message: 'Something went wrong'
+                    error: 'Wrong email or password!'
                 });
             }
         }else{
-            return res.status(400).json({message: 'Something went wrong'})
+            return res.status(400).json({error: 'Wrong email or password!'})
         }
     })
 }

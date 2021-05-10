@@ -828,3 +828,57 @@ exports.getBookProductDetailsById = (req, res) => {
         return res.status(400).json({ error: 'Params required' });
     }
 }
+
+exports.updateRatingProductDetails = (req, res) => {
+    const { 
+        _id, 
+        rating,
+        review,
+    } = req.body;
+
+    const str = `rating.${rating}`;
+
+    let productPictures = [];
+
+    if(req.files.length > 0){
+        productPictures = req.files.map(file => {
+            return { img: file.filename }
+        });
+    }
+    console.log({productPictures});
+
+    const reviewPayload = {
+        userId: req.user._id,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        review,
+        rating,
+        productPictures,
+        createdAt: new Date
+    }
+
+    Product.updateOne(
+        { _id: _id },
+        { 
+            $inc: {
+                [str]: 1
+            }
+        }
+    ).exec();
+
+    Product.findOneAndUpdate(
+        { _id: _id },
+        {
+            $push: {
+                reviews: reviewPayload,
+            },
+        },
+        { new: true, upsert: true }
+    ).exec((error, response) => {
+        if(error) return res.status(400).json({ error });
+        if(response){
+            res.status(201).json({ response });
+        }
+    });
+        
+}
