@@ -22,24 +22,46 @@ exports.addItemToCart = (req, res) => {
 
             req.body.cartItems.forEach((cartItem) => {
                 const product = cartItem.product;
-                const item = cart.cartItems.find(c => c.product == product );
-                let condition, update;
-                if(item){
-                    condition = { "user": req.user._id, "cartItems.product": product };
-                    update = {
-                        "$set": {
-                            "cartItems.$": cartItem
-                        }
-                    };
+                const variantProduct = cartItem.variantProduct;
+                if(variantProduct){
+                    const item = cart.cartItems.find(c => c.product == product && c.variantProduct == variantProduct );
+                    let condition, update;
+                    if(item){
+                        condition = { "user": req.user._id, "cartItems.product": product, "cartItems.variantProduct": variantProduct };
+                        update = {
+                            "$set": {
+                                "cartItems.$": cartItem
+                            }
+                        };
+                    }else{
+                        condition = { user: req.user._id };
+                        update = {
+                            "$push": {
+                                "cartItems": cartItem
+                            }
+                        };
+                    }
+                    promiseArray.push(runUpdate(condition, update))
                 }else{
-                    condition = { user: req.user._id };
-                    update = {
-                        "$push": {
-                            "cartItems": cartItem
-                        }
-                    };
+                    const item = cart.cartItems.find(c => c.product == product );
+                    let condition, update;
+                    if(item){
+                        condition = { "user": req.user._id, "cartItems.product": product };
+                        update = {
+                            "$set": {
+                                "cartItems.$": cartItem
+                            }
+                        };
+                    }else{
+                        condition = { user: req.user._id };
+                        update = {
+                            "$push": {
+                                "cartItems": cartItem
+                            }
+                        };
+                    }
+                    promiseArray.push(runUpdate(condition, update))
                 }
-                promiseArray.push(runUpdate(condition, update))
                 
                 // Cart.findOneAndUpdate(condition, update)
                 // .exec((error, _cart) => {
@@ -90,17 +112,87 @@ exports.addItemToCart = (req, res) => {
 exports.getCartItems = (req, res) => {
     Cart.findOne({ user: req.user._id })
     .populate('cartItems.product', '_id name price productPictures')
+    .populate('cartItems.smartphone')
+    .populate('cartItems.clothing')
+    .populate('cartItems.television')
+    .populate('cartItems.laptop')
+    .populate('cartItems.furniture')
+    .populate('cartItems.book')
     .exec((error, cart) => {
         if(error) return res.status(400).json({ error });
         if(cart){
+            console.log(cart);
             let cartItems = {};
             cart.cartItems.forEach((item, index) => {
-                cartItems[item.product._id.toString()] = {
-                    _id: item.product._id.toString(),
-                    name: item.product.name,
-                    img: item.product.productPictures[0].img,
-                    price: item.product.price,
-                    qty: item.quantity
+                if(item.smartphone){
+                    cartItems[item.smartphone._id.toString()] = {
+                        _id: item.smartphone._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity,
+                        ram: item.smartphone.ram,
+                        storage: item.smartphone.storage,
+                        color: item.smartphone.color
+                    }
+                }else if(item.laptop){
+                    cartItems[item.laptop._id.toString()] = {
+                        _id: item.laptop._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity,
+                        ram: item.laptop.ram,
+                        hardDiskCapacity: item.laptop.hardDiskCapacity
+                    }
+                }else if(item.television){
+                    cartItems[item.television._id.toString()] = {
+                        _id: item.television._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity,
+                        screenSize: item.television.screenSize,
+                    }
+                }else if(item.clothing){
+                    cartItems[item.clothing._id.toString()] = {
+                        _id: item.clothing._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity,
+                        color: item.clothing.color,
+                        size: item.clothing.size,
+                        fabric: item.clothing.fabric
+                    }
+                }else if(item.furniture){
+                    cartItems[item.furniture._id.toString()] = {
+                        _id: item.furniture._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity,
+                        primaryColor: item.furniture.primaryColor,
+                        material: item.furniture.material
+                    }
+                }else if(item.book){
+                    cartItems[item.book._id.toString()] = {
+                        _id: item.book._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity,
+                        author: item.book.author,
+                        genre: item.book.genre
+                    }
+                }else{
+                    cartItems[item.product._id.toString()] = {
+                        _id: item.product._id.toString(),
+                        name: item.product.name,
+                        img: item.product.productPictures[0].img,
+                        price: item.product.price,
+                        qty: item.quantity
+                    }
                 }
             });
             res.status(200).json({ cartItems });
@@ -109,8 +201,25 @@ exports.getCartItems = (req, res) => {
 }
 
 exports.removeCartItems = (req, res) => {
-    const { productId } = req.body.payload;
-    if(productId){
+    const { productId, variantId } = req.body.payload;
+    if(variantId){
+        Cart.update(
+            { user: req.user._id },
+            {
+                $pull: {
+                    cartItems: {
+                        product: productId,
+                        variantProduct: variantId
+                    },
+                },
+            }
+        ).exec((error, result) => {
+            if(error) return res.status(400).json({ error });
+            if(result){
+                res.status(202).json({ result });
+            }
+        });
+    }else if(productId){
         Cart.update(
             { user: req.user._id },
             {

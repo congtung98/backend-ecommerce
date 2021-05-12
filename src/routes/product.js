@@ -45,7 +45,7 @@ const upload = multer({ storage });
 
 router.post('/product/create', requireSignIn, adminMiddleware, upload.array('productPicture'), createProduct )
 router.get('/products/:slug', getProductsBySlug)
-router.get('/product/:productId', getProductDetailsById);
+router.get('/product/productDetails/:productId/:type', getProductDetailsById);
 router.delete('/product/deleteProductById', requireSignIn, adminMiddleware, deleteProductById);
 router.post('/product/getProducts', requireSignIn, adminMiddleware, getProducts);
 router.post('/product/editProductById', requireSignIn, adminMiddleware, upload.array('productPicture'), updateProducts);

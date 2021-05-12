@@ -89,18 +89,131 @@ exports.getProductsBySlug = (req, res) => {
 }
 
 exports.getProductDetailsById = (req, res) => {
-    const { productId } = req.params;
+    const { productId, type } = req.params;
     if(productId){
-        Product.findOne({ _id: productId })
-        .exec((error, product) => {
-            if(error) return res.status(400).json({ error });
-            if(product){
-                res.status(200).json({ product });
-            }
-        });
+        switch(type){
+            case 'smartPhone':
+                Product.findOne({ _id: productId })
+                .exec((error, product) => {
+                    if(error) return res.status(400).json({ error });
+                    if(product){
+                        // console.log(product);
+                        SmartPhone.find({ product: productId })
+                        .exec((err, smartPhone) => {
+                            if(err) return res.status(400).json({ err });
+                            if(smartPhone){
+                                product.children = smartPhone;
+                                const prod = product;
+                                prod["children"] = smartPhone;
+                                console.log(prod);
+                                res.status(200).json({ product, children: smartPhone });
+                            }
+                        })
+                    }
+                });
+                break;
+            case 'clothing':
+                Product.findOne({ _id: productId })
+                .exec((error, product) => {
+                    if(error) return res.status(400).json({ error });
+                    if(product){
+                        Clothing.find({ product: productId })
+                        .exec((err, clothing) => {
+                            if(err) return res.status(400).json({ err });
+                            if(clothing){
+                                product.children = clothing;
+                                const prod = product;
+                                prod["children"] = clothing;
+                                res.status(200).json({ product, children: clothing });
+                            }
+                        })
+                    }
+                });
+                break;
+            case 'laptop':
+                Product.findOne({ _id: productId })
+                .exec((error, product) => {
+                    if(error) return res.status(400).json({ error });
+                    if(product){
+                        Laptop.find({ product: productId })
+                        .exec((err, clothing) => {
+                            if(err) return res.status(400).json({ err });
+                            if(clothing){
+                                product.children = clothing;
+                                const prod = product;
+                                prod["children"] = clothing;
+                                res.status(200).json({ product, children: clothing });
+                            }
+                        })
+                    }
+                });
+                break;
+            case 'television':
+                Product.findOne({ _id: productId })
+                .exec((error, product) => {
+                    if(error) return res.status(400).json({ error });
+                    if(product){
+                        Televison.find({ product: productId })
+                        .exec((err, clothing) => {
+                            if(err) return res.status(400).json({ err });
+                            if(clothing){
+                                product.children = clothing;
+                                const prod = product;
+                                prod["children"] = clothing;
+                                res.status(200).json({ product, children: clothing });
+                            }
+                        })
+                    }
+                });
+                break;
+            case 'furniture':
+                Product.findOne({ _id: productId })
+                .exec((error, product) => {
+                    if(error) return res.status(400).json({ error });
+                    if(product){
+                        Furniture.find({ product: productId })
+                        .exec((err, clothing) => {
+                            if(err) return res.status(400).json({ err });
+                            if(clothing){
+                                product.children = clothing;
+                                const prod = product;
+                                prod["children"] = clothing;
+                                res.status(200).json({ product, children: clothing });
+                            }
+                        })
+                    }
+                });
+                break;
+            case 'book':
+            Product.findOne({ _id: productId })
+            .exec((error, product) => {
+                if(error) return res.status(400).json({ error });
+                if(product){
+                    Book.find({ product: productId })
+                    .exec((err, clothing) => {
+                        if(err) return res.status(400).json({ err });
+                        if(clothing){
+                            product.children = clothing;
+                            const prod = product;
+                            prod["children"] = clothing;
+                            res.status(200).json({ product, children: clothing });
+                        }
+                    })
+                }
+            });
+            break;
+            default:
+                Product.findOne({ _id: productId })
+                .exec((error, product) => {
+                    if(error) return res.status(400).json({ error });
+                    if(product){
+                        res.status(200).json({ product, children: [] });
+                    }
+                });
+        }
     }else{
         return res.status(400).json({ error: 'Params required' });
-    }
+    }  
 }
 
 exports.deleteProductById = (req, res) => {
