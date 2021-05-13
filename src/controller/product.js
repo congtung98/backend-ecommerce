@@ -12,7 +12,7 @@ const Book = require('../models/book');
 exports.createProduct = (req, res) => {
  
     // res.status(200).json({ file: req.files, body: req.body });
-    const { name, price, description, category, quantity, createdBy } = req.body;
+    const { name, price, description, category, quantity, type, createdBy } = req.body;
 
     let productPictures = [];
 
@@ -28,6 +28,7 @@ exports.createProduct = (req, res) => {
         price,
         quantity,
         description,
+        type,
         productPictures,
         category,
         createdBy: req.user._id

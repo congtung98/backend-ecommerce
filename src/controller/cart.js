@@ -111,7 +111,7 @@ exports.addItemToCart = (req, res) => {
 
 exports.getCartItems = (req, res) => {
     Cart.findOne({ user: req.user._id })
-    .populate('cartItems.product', '_id name price productPictures')
+    .populate('cartItems.product', '_id name price productPictures type')
     .populate('cartItems.smartphone')
     .populate('cartItems.clothing')
     .populate('cartItems.television')
@@ -121,67 +121,78 @@ exports.getCartItems = (req, res) => {
     .exec((error, cart) => {
         if(error) return res.status(400).json({ error });
         if(cart){
-            console.log(cart);
             let cartItems = {};
             cart.cartItems.forEach((item, index) => {
                 if(item.smartphone){
                     cartItems[item.smartphone._id.toString()] = {
-                        _id: item.smartphone._id.toString(),
+                        _id: item.product._id.toString(),
+                        variantId: item.smartphone._id.toString(),
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
                         qty: item.quantity,
+                        type: item.product.type,
                         ram: item.smartphone.ram,
                         storage: item.smartphone.storage,
                         color: item.smartphone.color
                     }
                 }else if(item.laptop){
                     cartItems[item.laptop._id.toString()] = {
-                        _id: item.laptop._id.toString(),
+                        _id: item.product._id.toString(),
+                        variantId: item.laptop._id.toString(),
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
                         qty: item.quantity,
+                        type: item.product.type,
                         ram: item.laptop.ram,
                         hardDiskCapacity: item.laptop.hardDiskCapacity
                     }
                 }else if(item.television){
                     cartItems[item.television._id.toString()] = {
-                        _id: item.television._id.toString(),
+                        _id: item.product._id.toString(),
+                        variantId: item.television._id.toString(),
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
                         qty: item.quantity,
+                        type: item.product.type,
                         screenSize: item.television.screenSize,
                     }
                 }else if(item.clothing){
                     cartItems[item.clothing._id.toString()] = {
-                        _id: item.clothing._id.toString(),
+                        _id: item.product._id.toString(),
+                        variantId: item.clothing._id.toString(),
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
                         qty: item.quantity,
+                        type: item.product.type,
                         color: item.clothing.color,
                         size: item.clothing.size,
                         fabric: item.clothing.fabric
                     }
                 }else if(item.furniture){
                     cartItems[item.furniture._id.toString()] = {
-                        _id: item.furniture._id.toString(),
+                        _id: item.product._id.toString(),
+                        variantId: item.furniture._id.toString(),
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
                         qty: item.quantity,
+                        type: item.product.type,
                         primaryColor: item.furniture.primaryColor,
                         material: item.furniture.material
                     }
                 }else if(item.book){
                     cartItems[item.book._id.toString()] = {
-                        _id: item.book._id.toString(),
+                        _id: item.product._id.toString(),
+                        variantId: item.book._id.toString(),
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
                         qty: item.quantity,
+                        type: item.product.type,
                         author: item.book.author,
                         genre: item.book.genre
                     }
