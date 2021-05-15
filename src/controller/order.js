@@ -52,6 +52,12 @@ exports.getOrders = (req, res) => {
 exports.getOrder = (req, res) => {
     Order.findOne({ _id: req.body.orderId })
         .populate("items.productId", "_id name productPictures")
+        .populate('items.smartphone')
+        .populate('items.clothing')
+        .populate('items.television')
+        .populate('items.laptop')
+        .populate('items.furniture')
+        .populate('items.book')
         .lean()
         .exec((error, order) => {
             if(error) return res.status(400).json({ error });

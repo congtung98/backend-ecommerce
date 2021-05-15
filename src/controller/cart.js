@@ -127,6 +127,7 @@ exports.getCartItems = (req, res) => {
                     cartItems[item.smartphone._id.toString()] = {
                         _id: item.product._id.toString(),
                         variantId: item.smartphone._id.toString(),
+                        smartphone: true,
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
@@ -140,6 +141,7 @@ exports.getCartItems = (req, res) => {
                     cartItems[item.laptop._id.toString()] = {
                         _id: item.product._id.toString(),
                         variantId: item.laptop._id.toString(),
+                        laptop: true,
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
@@ -152,6 +154,7 @@ exports.getCartItems = (req, res) => {
                     cartItems[item.television._id.toString()] = {
                         _id: item.product._id.toString(),
                         variantId: item.television._id.toString(),
+                        television: true,
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
@@ -163,6 +166,7 @@ exports.getCartItems = (req, res) => {
                     cartItems[item.clothing._id.toString()] = {
                         _id: item.product._id.toString(),
                         variantId: item.clothing._id.toString(),
+                        clothing: true,
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
@@ -176,6 +180,7 @@ exports.getCartItems = (req, res) => {
                     cartItems[item.furniture._id.toString()] = {
                         _id: item.product._id.toString(),
                         variantId: item.furniture._id.toString(),
+                        furniture: true,
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,
@@ -188,6 +193,7 @@ exports.getCartItems = (req, res) => {
                     cartItems[item.book._id.toString()] = {
                         _id: item.product._id.toString(),
                         variantId: item.book._id.toString(),
+                        book: true,
                         name: item.product.name,
                         img: item.product.productPictures[0].img,
                         price: item.product.price,

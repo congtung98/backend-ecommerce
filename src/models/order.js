@@ -22,6 +22,33 @@ const orderSchema = new mongoose.Schema(
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "Product"
                 },
+                variantProduct: {
+                    type: mongoose.Schema.Types.ObjectId
+                },
+                smartphone: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product_SmartPhone'
+                },
+                clothing: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product_Clothing'
+                },
+                laptop: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product_Laptop'
+                },
+                television: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product_Television'
+                },
+                furniture: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product_Furniture'
+                },
+                book: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product_Book'
+                },
                 payablePrice: {
                     type: Number,
                     required: true
