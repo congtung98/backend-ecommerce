@@ -996,3 +996,14 @@ exports.updateRatingProductDetails = (req, res) => {
     });
         
 }
+
+exports.searchProduct = (req, res) => {
+    Product.find({ $text: { $search: req.body.search}}, { score: { $meta: "textScore" } })
+    .sort( { score: { $meta: "textScore" } } )
+    .exec((error, response) => {
+        if(error) return res.status(400).json({ error });
+        if(response){
+            res.status(201).json({ response });
+        }
+    })
+}
