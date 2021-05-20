@@ -35,6 +35,12 @@ exports.initialData = async (req, res) => {
         .exec();
     const orders = await Order.find({})
         .populate("items.productId", "name")
+        .populate('items.smartphone')
+        .populate('items.clothing')
+        .populate('items.television')
+        .populate('items.laptop')
+        .populate('items.furniture')
+        .populate('items.book')
         .exec();
     res.status(200).json({
         categories: createCategories(categories),

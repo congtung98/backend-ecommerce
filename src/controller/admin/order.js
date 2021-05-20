@@ -15,59 +15,59 @@ exports.updateOrder = (req, res) => {
             console.log(items[i]);
             if(items[i].smartphone){
                 Smartphone.updateOne(
-                    { _id: items[i].smartphone},
+                    { _id: items[i].variantProduct},
                     {
                         $inc: {
                             quantity: -items[i].purchasedQty
                         }
                     }
-                )
+                ).exec()
             }else if(items[i].clothing){
                 Clothing.updateOne(
-                    { _id: items[i].clothing},
+                    { _id: items[i].variantProduct},
                     {
                         $inc: {
                             quantity: -items[i].purchasedQty
                         }
                     }
-                )
+                ).exec()
             }else if(items[i].laptop){
+                console.log();
                 Laptop.updateOne(
-                    { _id: items[i].laptop},
+                    { _id: items[i].variantProduct},
                     {
                         $inc: {
                             quantity: -items[i].purchasedQty
                         }
                     }
-                )
+                ).exec()
             }else if(items[i].television){
                 Televison.updateOne(
-                    { _id: items[i].television},
+                    { _id: items[i].variantProduct},
                     {
                         $inc: {
                             quantity: -items[i].purchasedQty
                         }
                     }
-                )
+                ).exec()
             }else if(items[i].furniture){
                 Furniture.updateOne(
-                    { _id: items[i].furniture},
+                    { _id: items[i].variantProduct},
                     {
                         $inc: {
                             quantity: -items[i].purchasedQty
                         }
                     }
-                )
+                ).exec()
             }else if(items[i].book){
-                console.log('vao kooo');
                 Book.updateOne(
-                    { _id: items[i].book},
+                    { _id: items[i].variantProduct},
                     {
                         $inc: {
                             quantity: -items[i].purchasedQty
                         }
                     }
-                )
+                ).exec()
             } 
             Product.updateOne(
                 { _id: items[i].productId._id },
@@ -97,6 +97,12 @@ exports.updateOrder = (req, res) => {
 exports.getCustomerOrders = async (req, res) => {
     const orders = await Order.find({})
         .populate("items.productId", "name")
+        .populate('items.smartphone')
+        .populate('items.clothing')
+        .populate('items.television')
+        .populate('items.laptop')
+        .populate('items.furniture')
+        .populate('items.book')
         .exec();
     res.status(200).json({ orders });
 }
