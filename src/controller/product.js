@@ -12,7 +12,7 @@ const Book = require('../models/book');
 exports.createProduct = (req, res) => {
  
     // res.status(200).json({ file: req.files, body: req.body });
-    const { name, price, description, category, quantity, type, createdBy } = req.body;
+    const { name, price, description, category, quantity, type, offer } = req.body;
 
     let productPictures = [];
 
@@ -26,6 +26,7 @@ exports.createProduct = (req, res) => {
         name: name,
         slug: slugify(name),
         price,
+        offer,
         quantity,
         description,
         type,
@@ -366,7 +367,7 @@ exports.deleteBookProductById = (req, res) => {
 
 exports.getProducts = async (req, res) => {
     const products = await Product.find({ })
-        .select("_id name price quantity slug description productPictures createdBy")
+        .select("_id name price offer quantity slug description productPictures createdBy")
         .populate({ path: "category", select: "_id name" })
         .exec();
 
@@ -374,7 +375,7 @@ exports.getProducts = async (req, res) => {
 };
 
 exports.updateProducts = async (req, res) => {
-    const { _id, name, price, quantity, description, category, productPictures } = req.body;
+    const { _id, name, price, offer, quantity, description, category, productPictures } = req.body;
     console.log(productPictures);
     let _productPictures = []; 
     let _oldProductPictures = [];
@@ -399,20 +400,21 @@ exports.updateProducts = async (req, res) => {
             return { img: file.filename }
         })
     }
-    console.log({_productPictures});
+    
 
     let finalProductPitures = _oldProductPictures.concat(_productPictures);
     
     const _updatedProduct = {
         name,
         price,
+        offer,
         quantity,
         description,
         category,
         productPictures: finalProductPitures,
         createdBy: req.user._id
     }
-
+    console.log({_updatedProduct});
     if(_id){
         Product.findOneAndUpdate(
             { _id: _id },

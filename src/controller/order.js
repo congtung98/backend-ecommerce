@@ -1,6 +1,7 @@
 const Order = require("../models/order");
 const Cart = require("../models/cart");
 const Address = require("../models/address");
+const stripe = require('stripe')('sk_test_51It8V8CyrW0u6wi2f9An7WD6yt6ZG9nfmK6Vo6ZyWSUIpyeqjCaaTtTKbcJ0McZAedy6p7q5oW9pZsvZwfpEifNu00qeBi9G5N');
 
 exports.addOrder = (req, res) => {
     Cart.deleteOne({ user: req.user._id }).exec((error, result) => {
@@ -75,4 +76,29 @@ exports.getOrder = (req, res) => {
                 });
             }
         });
+}
+
+exports.paymentOrder = async (req, res) => {
+    let { amount, id } = req.body;
+    try {
+        const payment = await stripe.paymentIntents.create({
+            amount,
+            currency: "VND",
+            description: "Flipkart Company",
+            payment_method: id,
+            confirm: true
+        })
+        console.log("Payment", payment);
+        res.json({
+            message: "Payment successful",
+            success: true
+        })
+
+    } catch (error) {
+        console.log("Error", error);
+        res.json({
+            message: "Payment failed",
+            success: false
+        })
+    }
 }
