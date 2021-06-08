@@ -44,6 +44,56 @@ exports.createProduct = (req, res) => {
 
 };
 
+async function getProductVariants (type, products) {
+    let productVariants = [];
+    switch(type){
+        case 'smartPhone':
+            for (const product of products) {
+                // const element = array[index];
+                const p = await SmartPhone.find({ product: product._id }).exec();
+                productVariants.push(p)              
+            }
+            break;
+        case 'clothing':
+            for (const product of products) {
+                // const element = array[index];
+                const p = await Clothing.find({ product: product._id }).exec();
+                productVariants.push(p)              
+            }
+            break;
+        case 'laptop':
+            for (const product of products) {
+                // const element = array[index];
+                const p = await Laptop.find({ product: product._id }).exec();
+                productVariants.push(p)              
+            }
+            break;
+        case 'television':
+            for (const product of products) {
+                // const element = array[index];
+                const p = await Televison.find({ product: product._id }).exec();
+                productVariants.push(p)              
+            }
+            break;
+        case 'furniture':
+            for (const product of products) {
+                // const element = array[index];
+                const p = await Furniture.find({ product: product._id }).exec();
+                productVariants.push(p)              
+            }
+            break;
+        case 'book':
+            for (const product of products) {
+                // const element = array[index];
+                const p = await Book.find({ product: product._id }).exec();
+                productVariants.push(p)              
+            }
+            break;
+    }
+    // console.log({productVariants});
+    return productVariants;
+}
+
 exports.getProductsBySlug = (req, res) => {
     const { slug } = req.params;
     Category.findOne({ slug: slug })
@@ -55,7 +105,7 @@ exports.getProductsBySlug = (req, res) => {
 
         if(category){
             Product.find({ category: category._id })
-            .exec((error, products) => {
+            .exec( async (error, products) => {
 
                 if(error){
                     return res.status(400).json({error});
@@ -63,8 +113,13 @@ exports.getProductsBySlug = (req, res) => {
 
                 if(category.type){
                     if(products.length > 0){
+                        let productVariants = [];
+
+                        productVariants = await getProductVariants(products[0].type, products);
+                        console.log({productVariants});
                         res.status(200).json({ 
                             products,
+                            variants: productVariants,
                             priceRange: {
                                 under5mil: 5000000,
                                 under10mil: 10000000,
@@ -82,7 +137,10 @@ exports.getProductsBySlug = (req, res) => {
                         });
                     }
                 }else{
-                    res.status(200).json({ products });
+                    let productVariants = [];
+
+                    productVariants = await getProductVariants(products[0].type, products);
+                    res.status(200).json({ products, variants: productVariants });
                 }
             });
         }
