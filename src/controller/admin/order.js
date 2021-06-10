@@ -10,9 +10,8 @@ const Televison = require("../../models/televison");
 exports.updateOrder = (req, res) => {
     const { items, type } = req.body;
 
-    if(req.body.type === 'delivered'){
+    if(type === 'delivered'){
         for (let i = 0; i < items.length; i++) {
-            console.log(items[i]);
             if(items[i].smartphone){
                 Smartphone.updateOne(
                     { _id: items[i].variantProduct},
@@ -32,7 +31,6 @@ exports.updateOrder = (req, res) => {
                     }
                 ).exec()
             }else if(items[i].laptop){
-                console.log();
                 Laptop.updateOne(
                     { _id: items[i].variantProduct},
                     {

@@ -47,3 +47,21 @@ exports.getAddress = (req, res) => {
         }
     });
 }
+
+exports.deleteAddress = (req, res) => {
+    const { payload } = req.body;
+    UserAddress.findOneAndUpdate({ user: req.user._id },
+    {
+        $pull: {
+            address: {
+                _id: payload.address._id,
+            },
+        },
+    }
+    ).exec((error, userAddress) => {
+        if(error) return res.status(400).json({ error });
+        if(userAddress){
+            res.status(202).json({ userAddress });
+        }
+    });
+};
