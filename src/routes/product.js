@@ -24,7 +24,8 @@ const { createProduct,
     getBookProductDetailsById,
     deleteBookProductById,
     updateRatingProductDetails,
-    searchProduct} = require('../controller/product');
+    searchProduct,
+    getMostOfferProducts} = require('../controller/product');
 // const { addCategory, getCategory } = require('../controller/category');
 const { adminMiddleware, requireSignIn, userMiddleware } = require('../middleware');
 const multer = require('multer');
@@ -78,5 +79,7 @@ router.delete('/product/deleteBookProductById', requireSignIn, adminMiddleware, 
 router.post('/product/rating', requireSignIn, userMiddleware, upload.array('productPicture'), updateRatingProductDetails);
 
 router.post('/product/search', searchProduct);
+
+router.get('/product/bestDeal', getMostOfferProducts);
 
 module.exports = router;

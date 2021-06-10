@@ -1067,3 +1067,13 @@ exports.searchProduct = (req, res) => {
         }
     })
 }
+
+exports.getMostOfferProducts = (req, res) => {
+    Product.find().sort( { offer:-1 }).limit(6)
+    .exec((error, response) => {
+        if(error) return res.status(400).json({ error });
+        if(response){
+            res.status(201).json({ response });
+        }
+    })
+}
