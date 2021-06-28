@@ -39,8 +39,8 @@ exports.signUp = (req, res) => {
             }
 
             if(data){
-                const token = generateJwtToken(user._id, user.role);
-                const { _id, firstName, lastName, email, role, fullName } = user;
+                const token = generateJwtToken(data._id, data.role);
+                const { _id, firstName, lastName, email, role, fullName } = data;
                 return res.status(201).json({
                     token,
                     user: { _id, firstName, lastName, email, role, fullName },
